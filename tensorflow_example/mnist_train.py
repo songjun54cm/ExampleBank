@@ -116,7 +116,7 @@ def main(config):
             print('saver save model into %s' % save_path)
             export_dir = os.path.join(saved_model_dir, 'epoch_%d' % epoch_i)
             builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
-            builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.TRAINING])
+            builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.TRAINING], clear_device=True)
             model_path = builder.save()
             print('SavedModel save model into %s' % model_path)
 

@@ -30,7 +30,7 @@ def main(config):
     sess = tf.Session()
 
     meta_path = os.path.join(saver_folder, 'model.meta')
-    saver = tf.train.import_meta_graph(meta_path)
+    saver = tf.train.import_meta_graph(meta_path, clear_devices=True)
     saver.restore(sess, tf.train.latest_checkpoint(saver_folder))
 
     graph = tf.get_default_graph()
