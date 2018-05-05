@@ -16,3 +16,6 @@ output/
 target/
 .classpath
 .project
+packages/
+settings.py
+.cache
