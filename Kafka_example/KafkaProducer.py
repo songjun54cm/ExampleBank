@@ -36,9 +36,22 @@ def main(config):
     print('producer send message finish.')
 
 
+def main1(config):
+    producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVERS,
+                             retries=3)
+    for i in range(10):
+        message = "message_%d_hello_world" % i
+        producer.send('songjun_topic', message)\
+            .add_callback(on_send_success)\
+            .add_errback(on_send_error)
+        # print('send message : %s' % message)
+
+    producer.flush()
+    print('producer send message finish.')
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', dest='file', type=str, default='example.txt')
     args = parser.parse_args()
     config = vars(args)
-    main(config)
+    main1(config)
