@@ -5,6 +5,9 @@
 
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
+import org.json4s._
+import org.json4s.native.JsonMethods
+
 import scala.collection.JavaConversions._
 object JsonTest {
   def main(args: Array[String]): Unit = {
@@ -16,6 +19,10 @@ object JsonTest {
     for( k <- jObj.keySet()){
       println(s"$k : ${jObj.get(k)}")
     }
+
+
+    val confMap = JsonMethods.parse(jStr).values.asInstanceOf[Map[String,String]]
+    println(confMap.toString())
 
   }
 }
