@@ -1,6 +1,14 @@
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 public class Test {
     public static void main(String[] args){
+        String exampleString = "example";
+        InputStream stream = new ByteArrayInputStream(exampleString.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static void main1(String[] args){
         List<String> ls = new ArrayList<String>();
         List<String> ls1;
         ls.add("a");
