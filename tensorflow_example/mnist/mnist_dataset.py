@@ -83,8 +83,8 @@ def main(config):
         sess.run(init_op)
         step = 0
         try:
+            start_time = time.time()
             while True:
-                start_time = time.time()
                 fea, label = sess.run([train_next_elmt["fea"],
                                        train_next_elmt["label"]])
                 _, loss_val = sess.run([train_op, loss],
@@ -94,6 +94,7 @@ def main(config):
                                        })
                 if step % 1000 == 0:
                     duration = time.time() - start_time
+                    start_time = time.time()
                     print("step %d: loss = %f (%.3f sec)" % (step, loss_val, duration))
                 if step % 10000 == 0:
                     accs = []
@@ -111,6 +112,7 @@ def main(config):
                     except tf.errors.OutOfRangeError:
                         acc = np.average(accs)
                         duration = time.time() - start_time
+                        start_time = time.time()
                         print("average acc: %f (%.3f sec)" % (acc, duration))
                         print("Done testing.")
         except tf.errors.OutOfRangeError:

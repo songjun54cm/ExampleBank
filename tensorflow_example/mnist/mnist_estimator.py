@@ -24,9 +24,10 @@ def load_data():
     return train_data, train_labels, eval_data, eval_labels
 
 
-def my_model(features, labels, mode, params):
-    input_label = tf.placeholder(tf.int64, [None], name="input_label")
-    input_fea = tf.placeholder(tf.float32, [None,28,28,1], name="input_fea")
+def my_model_fn(features, labels, mode, params):
+    input_fea = tf.feature_column.input_layer(features, params["feature_columns"])
+    # input_label = tf.placeholder(tf.int64, [None], name="input_label")
+    # input_fea = tf.placeholder(tf.float32, [None,28,28,1], name="input_fea")
     conv1 = tf.layers.conv2d(
         inputs=input_fea,
         filters=32,
@@ -50,12 +51,13 @@ def my_model(features, labels, mode, params):
 
     if mode == tf.estimator.ModeKeys.PREDICT:
         predictions = {
-            "class": pred_class,
-            "prob": probabilities
+            "class_ids": pred_class,
+            "probabilities": probabilities,
+            "logits": logits
         }
         return tf.estimator.EstimatorSpec(mode, predictions=predictions)
 
-    loss = tf.losses.sparse_softmax_cross_entropy(labels=input_label, logits=logits)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
     if mode == tf.estimator.ModeKey.TRAIN:
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
@@ -64,7 +66,7 @@ def my_model(features, labels, mode, params):
 
     eval_metric_ops = {
         "accuracy": tf.metrics.accuracy(
-            labels=input_label, predictions=pred_class)
+            labels=labels, predictions=pred_class)
     }
 
     return tf.estimator.EstimatorSpec(
@@ -77,6 +79,7 @@ def train_input_fn(features, labels, epoch_num, batch_size):
         .repeat(epoch_num) \
         .batch(batch_size)
     return dataset
+
 
 def eval_input_fn(feature, labels, batch_size):
     features = dict(feature)
@@ -91,8 +94,13 @@ def eval_input_fn(feature, labels, batch_size):
 
     return dataset
 
+
 def main(config):
     train_data, train_labels, eval_data, eval_labels = load_data()
+
+    my_feature_columns = list()
+    my_feature_columns.append(tf.feature_column.numeric_column(key="fea",
+                                                               shape=train_data.shape[1:]))
     train_x = {
         "fea": train_data
     }
@@ -111,7 +119,10 @@ def main(config):
         keep_checkpoint_max=10, # Retain the 10 most recent checkpoint
     )
 
-    classifier = tf.estimator.Estimator(model_fn=my_model,
+    classifier = tf.estimator.Estimator(model_fn=my_model_fn,
+                                        params={
+                                            "fea":my_feature_columns
+                                        },
                                         model_dir="../data/output/mnist/estimator",
                                         config=ckpt_config)
 
