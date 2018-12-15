@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.datasets import load_iris
 import random
 import os
+import _pickle as pkl
 
 print('loading data.')
 x, y = load_iris(return_X_y=True)
@@ -20,6 +21,15 @@ eval_fea = np.asarray([x[0] for x in eval_samples])
 eval_label = np.asarray([x[1] for x in eval_samples])
 print('eval data shape %s' % str(eval_fea.shape))
 print('eval labels shape %s' % str(eval_label.shape))
+
+data_path = "../data/iris/data.pkl"
+data = {
+    "train_fea": train_fea,
+    "train_label": train_label,
+    "eval_fea": eval_fea,
+    "eval_label": eval_label
+}
+pkl.dump(data, open(data_path, "wb"))
 
 
 if not os.path.exists('../data/iris'): os.makedirs('../data/iris/')

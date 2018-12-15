@@ -65,7 +65,7 @@ def main(config):
         activation=tf.nn.sigmoid,
         name="full3"
     )
-    probs = tf.nn.softmax(full3, name="softmax_out")
+    probs = tf.nn.softmax(full3, name="pred_probs")
     pred_class = tf.argmax(input=probs, axis=1, name="pred_class")
 
     pred_acc = tf.reduce_mean(tf.to_float(tf.equal(pred_class, in_label)), name='pred_accuracy')
@@ -74,23 +74,13 @@ def main(config):
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(loss=loss)
 
-    epoch_num = 100000
-    batch_size = 50
+    epoch_num = 100
+    batch_size = 30
 
     sess = tf.Session()
     init = tf.group(tf.global_variables_initializer(),
                     tf.local_variables_initializer())
     sess.run(init)
-
-    # create data folders
-    save_folder = os.path.join('../data/iris/output')
-    saved_model_dir = os.path.join(save_folder, 'saved_model')
-    saver_dir = os.path.join(save_folder, 'saver')
-    if not os.path.exists(save_folder):
-        print('make dir %s' % save_folder)
-        os.makedirs(save_folder)
-        os.makedirs(saved_model_dir)
-        os.makedirs(saver_dir)
     saver = tf.train.Saver()
 
     train_fea, train_label, eval_fea, eval_label = load_data()
@@ -122,6 +112,19 @@ def main(config):
                    })
     print("train finish, with acc; %f" % (acc))
 
+    # create data folders
+    save_folder = os.path.join('../data/iris/output')
+    saved_model_dir = os.path.join(save_folder, 'saved_model')
+    saver_dir = os.path.join(save_folder, 'saver')
+    if os.path.exists(save_folder):
+        import shutil
+        shutil.rmtree(save_folder, ignore_errors=True)
+    if not os.path.exists(save_folder):
+        print('make dir %s' % save_folder)
+        os.makedirs(save_folder)
+        os.makedirs(saved_model_dir)
+        os.makedirs(saver_dir)
+
     saver_folder = os.path.join(saver_dir, 'saver_output')
     if not os.path.exists(saver_folder):
         os.makedirs(saver_folder)
@@ -134,6 +137,14 @@ def main(config):
     builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.TRAINING], clear_devices=True)
     model_path = builder.save()
     print('SavedModel save model into %s' % model_path)
+
+    frozen_dir = os.path.join(save_folder, "frozen")
+    os.mkdir(frozen_dir)
+    frozen_graph_def = tf.graph_util.convert_variables_to_constants (sess, sess.graph_def, ["pred_probs", "pred_class", "pred_accuracy"])
+    frozen_graph_file = os.path.join(frozen_dir, "iris.pb")
+    # Save the frozen graph
+    with open (frozen_graph_file, "wb") as f:
+        f.write(frozen_graph_def.SerializeToString())
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
