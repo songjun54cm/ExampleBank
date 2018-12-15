@@ -15,9 +15,9 @@ import java.util.List;
  * Date: 2018/12/14
  * Description:
  **/
-public class IRISModel {
+public class IRISLoadSavedModelBuilder {
     public static void main(String[] args) throws IOException {
-        String model_dir = "C:\\Projects\\github\\ExampleBank\\tensorflow_example\\data\\iris\\output\\saved_model\\output";
+        String model_dir = "..\\tensorflow_example\\data\\iris\\output\\saved_model\\output";
         System.out.printf("load model from %s%n", model_dir);
 
         SavedModelBundle bundle = SavedModelBundle.load(model_dir, "train");
@@ -48,8 +48,8 @@ public class IRISModel {
         System.out.printf("pred class: %s%n", pcs.toString());
     }
 
-    private static Tensor get_eval_fea() throws IOException {
-        String eval_fea_file_path = "C:\\Projects\\github\\ExampleBank\\tensorflow_example\\data\\iris\\eval_data.txt";
+    public static Tensor get_eval_fea() throws IOException {
+        String eval_fea_file_path = "..\\tensorflow_example\\data\\iris\\eval_data.txt";
         File f = new File(eval_fea_file_path);
         InputStreamReader reader = new InputStreamReader(new FileInputStream(f));
         BufferedReader br = new BufferedReader(reader);
@@ -80,8 +80,8 @@ public class IRISModel {
         return t;
     }
 
-    private static Tensor get_eval_label() throws IOException{
-        String label_file_path = "C:\\Projects\\github\\ExampleBank\\tensorflow_example\\data\\iris\\eval_labels.txt";
+    public static Tensor get_eval_label() throws IOException{
+        String label_file_path = "..\\tensorflow_example\\data\\iris\\eval_labels.txt";
         File f = new File(label_file_path);
         InputStreamReader reader = new InputStreamReader(new FileInputStream(f));
         BufferedReader br = new BufferedReader(reader);
