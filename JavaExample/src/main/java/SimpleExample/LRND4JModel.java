@@ -51,9 +51,9 @@ public class LRND4JModel {
     }
 
     public static void printShape(INDArray array){
-        int[] shape = array.shape();
+        long[] shape = array.shape();
         System.out.print("[");
-        for(int i: shape){
+        for(long i: shape){
             System.out.print(i);
             System.out.print(",");
         }
