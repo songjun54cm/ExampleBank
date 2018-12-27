@@ -45,6 +45,9 @@ public class MnistClassifier {
 				.get(0);
 //		System.out.println(acc.floatValue());
 		System.out.printf("prediction accuracy: %f%n", acc.floatValue());
+		eval_features.close();
+		eval_labels.close();
+		acc.close();
 	}
 	
 	private static Tensor get_eval_features() throws IOException {

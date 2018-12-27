@@ -20,6 +20,7 @@ public class HelloTF {
 			try(Tensor t = Tensor.create(value.getBytes("UTF-8"))){
 				g.opBuilder("Const", "MyConst").setAttr("dtype", t.dataType())
 					.setAttr("value", t).build();
+				t.close();
 			}
 			
 			try(Session s = new Session(g);
