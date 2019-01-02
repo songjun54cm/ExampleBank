@@ -44,6 +44,12 @@ public class IRISLoadPB {
                 pcs.add(pred_cs.get(i));
             }
             System.out.printf("pred class: %s%n", pcs.toString());
+
+            for(Tensor t : res){
+                t.close();
+            }
         }
+        eval_fea.close();
+        eval_label.close();
     }
 }

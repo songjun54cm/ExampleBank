@@ -138,6 +138,7 @@ def main(config):
     model_path = builder.save()
     print('SavedModel save model into %s' % model_path)
 
+    # save graph to pb file
     frozen_dir = os.path.join(save_folder, "frozen")
     os.mkdir(frozen_dir)
     frozen_graph_def = tf.graph_util.convert_variables_to_constants (sess, sess.graph_def, ["pred_probs", "pred_class", "pred_accuracy"])
@@ -145,6 +146,15 @@ def main(config):
     # Save the frozen graph
     with open (frozen_graph_file, "wb") as f:
         f.write(frozen_graph_def.SerializeToString())
+
+    # save pb file to string
+    with open(frozen_graph_file, "rb") as f:
+        bs = f.read()
+        import base64
+        res = base64.b64encode(bs)
+    with open(os.path.join(frozen_dir, "iris.pb.str"), "w") as f:
+        f.write(res.decode("utf-8"))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
