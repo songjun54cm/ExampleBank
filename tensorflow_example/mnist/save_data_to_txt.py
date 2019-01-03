@@ -22,6 +22,16 @@ print('eval labels shape %s' % str(eval_labels.shape))
 
 
 if not os.path.exists('../data/mnist'): os.makedirs('../data/mnist/')
+with open("../data/mnist/train_labels.txt", "w") as f:
+    train_labels = [str(l) for l in train_labels.tolist()]
+    f.write("\n".join(train_labels))
+
+with open("../data/mnist/train_data.txt", "w") as f:
+    for i in range(train_data.shape[0]):
+        fea = [str(v) for v in train_data[i, :]]
+        f.write(' '.join(fea))
+        f.write('\n')
+
 with open('../data/mnist/eval_labels.txt', 'w') as f:
     eval_labels = [str(l) for l in eval_labels.tolist()]
     f.write('\n'.join(eval_labels))

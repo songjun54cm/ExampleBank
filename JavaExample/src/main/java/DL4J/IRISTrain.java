@@ -52,7 +52,5 @@ public class IRISTrain {
         MultiLayerNetwork dnn = new MultiLayerNetwork(conf);
         dnn.init();
 
-
-
     }
 }
