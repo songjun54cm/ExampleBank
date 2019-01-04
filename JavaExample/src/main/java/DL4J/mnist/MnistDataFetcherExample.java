@@ -2,6 +2,7 @@ package DL4J.mnist;
 
 import javafx.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.fetcher.BaseDataFetcher;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -20,6 +21,21 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
         Pair<INDArray, INDArray> fea_label = getFeaLabelData(feaDataPath, labelDataPath);
         this.dataFeas = fea_label.getKey();
         this.dataLabels = fea_label.getValue();
+
+    }
+
+    void fetch(int var1);
+
+    public int totalOutcomes(){
+        return (int) this.dataLabels.shape()[1];
+    }
+
+    public int inputColumns(){
+        return (int) this.dataFeas.shape()[1];
+    }
+
+    public int totalExamples(){
+        return (int)this.dataFeas.shape()[0];
     }
 
     public Pair<INDArray, INDArray> getMnistTrainData() throws IOException {
@@ -73,6 +89,11 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
         }
         int[] label_shape = {labels_data.size(), (int)labels_data.get(0).size(0)};
         INDArray res_label = Nd4j.create(labels_data, label_shape, 'c');
+
+        long numSample = res_feas.shape()[0];
+        long feaSize = res_label.shape()[1];
+        System.out.println(String.format("feature shape: %d, %d", res_feas.shape()[0], res_feas.shape()[1]));
+        System.out.println(String.format("label shape: %d, %d", res_label.shape()[0], res_label.shape()[1]));
 
         return new Pair<>(res_feas, res_label);
     }

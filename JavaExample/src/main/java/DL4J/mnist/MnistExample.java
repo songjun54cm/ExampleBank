@@ -41,24 +41,16 @@ public class MnistExample {
         int batchSize = 100;
         double learningRate = 0.001;
 
-        DataSetIterator = new MnistDataSetIterExample(batchSize, )
+        String train_data_path = "./data/train_data.txt";
+        String train_label_path = "./data/train_labels.txt";
+        MnistDataSetIterExample trainDataIter = new MnistDataSetIterExample(batchSize, new MnistDataFetcherExample(train_data_path, train_label_path));
+        long feaSize = trainDataIter.getFeaSize();
+        long numSample = trainDataIter.getNumSample();
+        long numLabel = trainDataIter.getNumLabel();
 
-
-        Pair<INDArray, INDArray> train_data = getMnistTrainData();
-        INDArray train_feas = train_data.getKey();
-        INDArray train_labels = train_data.getValue();
-        long numSample = train_feas.shape()[0];
-        long feaSize = train_feas.shape()[1];
-        System.out.println(String.format("train feature shape: %d, %d", train_feas.shape()[0], train_feas.shape()[1]));
-        System.out.println(String.format("train label shape: %d, %d", train_labels.shape()[0], train_labels.shape()[1]));
-
-        Pair<INDArray, INDArray> eval_data = getMnistEvalData();
-        INDArray eval_feas = eval_data.getKey();
-        INDArray eval_labels = eval_data.getValue();
-        long numLabel = eval_feas.shape()[1];
-        System.out.println(String.format("eval feature shape: %d, %d", eval_feas.shape()[0], eval_feas.shape()[1]));
-        System.out.println(String.format("eval label shape: %d, %d", eval_labels.shape()[1], eval_feas.shape()[1]));
-
+        String eval_data_path = "./data/eval_data.txt";
+        String eval_label_path = "./data/eval_labels.txt";
+        MnistDataSetIterExample evalDataIter = new MnistDataSetIterExample(batchSize, new MnistDataFetcherExample(eval_data_path, eval_label_path));
 
         logger.info("Build model......");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()

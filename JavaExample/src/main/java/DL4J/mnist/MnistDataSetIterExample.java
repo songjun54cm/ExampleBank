@@ -11,15 +11,22 @@ import java.io.IOException;
  * Description:
  **/
 public class MnistDataSetIterExample extends BaseDatasetIterator {
-    public MnistDataSetIterExample(int batch, int numExamples, BaseDataFetcher fetcher) {
-        super(batch, numExamples, fetcher);
+    public MnistDataSetIterExample(int batch, BaseDataFetcher fetcher) {
+        super(batch, -1,  fetcher);
     }
 
-    public MnistDataSetIterExample(int batch, String feaDataPath, String labelDataPath) throws IOException {
-        BaseDataFetcher fetcher = new MnistDataFetcherExample(feaDataPath, labelDataPath);
-        int numExample = fetcher.getNumExample();
-        super(batch, numExample, fetcher);
+    public int getFeaSize(){
+        return fetcher.inputColumns();
     }
+
+    public int getNumSample(){
+        return fetcher.totalExamples();
+    }
+
+    public int getNumLabel(){
+        return fetcher.totalOutcomes();
+    }
+
 }
 
 
