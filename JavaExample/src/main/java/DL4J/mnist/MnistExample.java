@@ -4,9 +4,11 @@ import com.sun.corba.se.spi.presentation.rmi.IDLNameTranslator;
 import javafx.util.Pair;
 import org.apache.avro.ipc.trace.ID;
 import org.deeplearning4j.datasets.iterator.INDArrayDataSetIterator;
+import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.cpu.nativecpu.NDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
@@ -37,20 +39,23 @@ import org.slf4j.LoggerFactory;
 public class MnistExample {
     private static Logger logger = LoggerFactory.getLogger(MnistExample.class);
     public static void main(String[] args) throws IOException {
+        logger.info("start mnist example.");
         int numEpoch = 20;
         int batchSize = 100;
         double learningRate = 0.001;
 
-        String train_data_path = "./data/train_data.txt";
-        String train_label_path = "./data/train_labels.txt";
+        String train_data_path = "data/mnist/train_data.txt";
+        String train_label_path = "data/mnist/train_labels.txt";
         MnistDataSetIterExample trainDataIter = new MnistDataSetIterExample(batchSize, new MnistDataFetcherExample(train_data_path, train_label_path));
         long feaSize = trainDataIter.getFeaSize();
         long numSample = trainDataIter.getNumSample();
         long numLabel = trainDataIter.getNumLabel();
+        System.out.println("load train data finish.");
 
-        String eval_data_path = "./data/eval_data.txt";
-        String eval_label_path = "./data/eval_labels.txt";
+        String eval_data_path = "data/mnist/eval_data.txt";
+        String eval_label_path = "data/mnist/eval_labels.txt";
         MnistDataSetIterExample evalDataIter = new MnistDataSetIterExample(batchSize, new MnistDataFetcherExample(eval_data_path, eval_label_path));
+        System.out.println("load eval data finish.");
 
         logger.info("Build model......");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -80,28 +85,23 @@ public class MnistExample {
         model.init();
         model.setListeners(new ScoreIterationListener(5));
 
-        logger.info("training model....");
+        logger.info("training model......");
         List<Long> order = new ArrayList<>();
-        for(long i=0; i<numSample; ++i){
-            order.add(i);
+        for(long i=0; i<numEpoch; ++i){
+            logger.info("Epoch " + i);
+            model.fit(trainDataIter);
         }
 
-        for(int i=0; i < numEpoch; ++i){
-            long iterSampleNum = 0;
-            while(iterSampleNum < numSample){
-                iterSampleNum += batchSize;
-                Collections.shuffle(order);
-                List<Long> idxs = order.subList(0, batchSize);
-                List<INDArray> batchFea = new ArrayList<>();
-                List<INDArray> batchLabel = new ArrayList<>();
-                for(Long idx : idxs){
-                    batchFea.add(train_feas.get(NDArrayIndex.point(idx), NDArrayIndex.all()));
-                    batchLabel.add(train_labels.get(NDArrayIndex.point(idx), NDArrayIndex.all()));
-                }
-                INDArray trFeas = Nd4j.vstack(batchFea);
-                INDArray trLabel = Nd4j.vstack(batchLabel);
-            }
-            model.fit();
+        logger.info("Evaluate model......");
+        Evaluation eval = new Evaluation(evalDataIter.getNumLabel());
+        while(evalDataIter.hasNext()){
+            DataSet next = evalDataIter.next();
+            INDArray output = model.output(next.getFeatures());
+            eval.eval(next.getLabels(), output);
         }
+
+        logger.info(eval.stats());
+        logger.info("mnist finish.");
+
     }
 }

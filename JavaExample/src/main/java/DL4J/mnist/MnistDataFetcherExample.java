@@ -5,14 +5,16 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.fetcher.BaseDataFetcher;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.INDArrayIndex;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MnistDataFetcherExample extends BaseDataFetcher {
-    private long iterSampleNum = 0;
     private List<Long> order = null;
     private INDArray dataFeas = null;
     private INDArray dataLabels = null;
@@ -21,32 +23,51 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
         Pair<INDArray, INDArray> fea_label = getFeaLabelData(feaDataPath, labelDataPath);
         this.dataFeas = fea_label.getKey();
         this.dataLabels = fea_label.getValue();
+        this.order = new ArrayList<>();
+        for(int i=0; i<this.dataFeas.shape()[0]; ++i){
+            this.order.add((long)i);
+        }
+        this.totalExamples = (int)this.dataFeas.shape()[0];
+        this.numOutcomes = (int)this.dataLabels.shape()[1];
+        this.inputColumns = (int) this.dataFeas.shape()[1];
 
     }
+    @Override
+    public void fetch(int numSample) {
+        if (!this.hasMore()) {
+            throw new IllegalStateException("Unable to get more; there are no more images");
+        }else{
+            List<Long> idxs = order.subList(this.cursor, Math.min(this.cursor+numSample, this.totalExamples));
+            this.cursor += numSample;
+            List<INDArray> curFeas = new ArrayList<>();
+            List<INDArray> curLabels = new ArrayList<>();
+            for(long idx : idxs){
+                curFeas.add(this.dataFeas.get(NDArrayIndex.point(idx), NDArrayIndex.all()));
+                curLabels.add(this.dataLabels.get(NDArrayIndex.point(idx), NDArrayIndex.all()));
+            }
 
-    void fetch(int var1);
-
-    public int totalOutcomes(){
-        return (int) this.dataLabels.shape()[1];
+            int[] fea_shape = {curFeas.size(), (int)curFeas.get(0).shape()[1]};
+            INDArray features = Nd4j.create(curFeas, fea_shape, 'c');
+            int[] labelShape = {curLabels.size(), (int)curLabels.get(0).shape()[1]};
+            INDArray labels = Nd4j.create(curLabels, labelShape, 'c');
+            this.curr = new DataSet(features, labels);
+        }
     }
 
-    public int inputColumns(){
-        return (int) this.dataFeas.shape()[1];
-    }
-
-    public int totalExamples(){
-        return (int)this.dataFeas.shape()[0];
+    public void reset() {
+        this.cursor = 0;
+        Collections.shuffle(this.order);
     }
 
     public Pair<INDArray, INDArray> getMnistTrainData() throws IOException {
-        String train_data_path = "./data/train_data.txt";
-        String train_label_path = "./data/train_labels.txt";
+        String train_data_path = "../data/train_data.txt";
+        String train_label_path = "../data/train_labels.txt";
         return getFeaLabelData(train_data_path, train_label_path);
     }
 
     public Pair<INDArray, INDArray> getMnistEvalData() throws IOException {
-        String eval_data_path = "./data/eval_data.txt";
-        String eval_label_path = "./data/eval_labels.txt";
+        String eval_data_path = "../data/eval_data.txt";
+        String eval_label_path = "../data/eval_labels.txt";
         return getFeaLabelData(eval_data_path, eval_label_path);
     }
 
@@ -69,7 +90,7 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
             fea_data.add(feas);
             line = fea_br.readLine();
         }
-        int[] fea_shape = {fea_data.size(), (int)fea_data.get(0).size(0)};
+        int[] fea_shape = {fea_data.size(), (int)fea_data.get(0).shape()[1]};
         INDArray res_feas = Nd4j.create(fea_data, fea_shape, 'c');
 
         File label_file = new File(labelDataPath);
@@ -87,7 +108,7 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
             labels_data.add(labels);
             label_line = label_br.readLine();
         }
-        int[] label_shape = {labels_data.size(), (int)labels_data.get(0).size(0)};
+        int[] label_shape = {labels_data.size(), (int)labels_data.get(0).shape()[1]};
         INDArray res_label = Nd4j.create(labels_data, label_shape, 'c');
 
         long numSample = res_feas.shape()[0];
@@ -96,10 +117,5 @@ public class MnistDataFetcherExample extends BaseDataFetcher {
         System.out.println(String.format("label shape: %d, %d", res_label.shape()[0], res_label.shape()[1]));
 
         return new Pair<>(res_feas, res_label);
-    }
-
-    @Override
-    public void fetch(int numSample) {
-
     }
 }
