@@ -2,6 +2,11 @@ __author__ = 'JunSong<songjun@corp.netease.com>'
 # Date: 2019/1/14
 import argparse
 import tensorflow as tf
+import pickle
+import os
+import numpy as np
+from settings import DATA_DIR
+
 
 class FM(object):
     def __init__(self, config):
@@ -62,4 +67,99 @@ class FM(object):
 
 
 def train_model(sess, model, epochs=10, print_every=50):
-    
+    # Merge all the summaries and write them out to train_logs
+    merged = tf.summary.merge_all()
+    train_writer = tf.summary.FileWriter('train_logs', sess.graph)
+    # get sparse training data
+    with open(os.path.join(DATA_DIR, "train_sparse_data_frac_0.01.pkl"), 'rb') as f:
+        sparse_data_fraction = pickle.load(f)
+
+    # get number of batches
+    num_batches = len(sparse_data_fraction)
+    for e in range(epochs):
+        num_samples = 0
+        losses = []
+        for ibatch in range(num_batches):
+            batch_y = sparse_data_fraction[ibatch]['labels']
+            batch_y = np.array(batch_y)
+            actual_batch_size = len(batch_y)
+            batch_indexes = np.array(sparse_data_fraction[ibatch]['indexes'], dtype=np.int64)
+            batch_shape = np.array([actual_batch_size, feature_length], dtype=np.int64)
+            batch_values = np.ones(len(batch_indexes), dtype=np.float32)
+
+            feed_dict = {model.X: (batch_indexes, batch_values, batch_shape),
+                         model.y: batch_y,
+                         model.keep_prob: 1.0}
+            loss, accuracy, summary, global_step, _ = sess.run([model.loss, model.accuracy,
+                                                                merged, model.global_step,
+                                                                model.train_op], feed_dict=feed_dict)
+
+            # aggregate performance stats
+            losses.append(loss*actual_batch_size)
+            num_samples += actual_batch_size
+            # Record summaries and train.csv-set accuracy
+            train_writer.add_summary(summary, global_step=global_step)
+            if global_step % print_every == 0:
+                print("Iteration: %d, loss: %f, accuracy: %f" % (global_step, loss, accuracy))
+
+        total_loss = np.sum(losses) / num_samples
+        print("Epoch: %d, Overall loss: %.3f" % (e, total_loss))
+
+
+def then_test_model(sess, model, print_every=50):
+    """testing model"""
+    # get testing data, iterable
+    with open(os.path.join(DATA_DIR, "test_sparse_data_frac_0.01.pkl"), 'rb') as f:
+        test_sparse_data_fraction = pickle.load(f)
+    all_ids = []
+    all_clicks = []
+    # get number of batches
+    num_batches = len(test_sparse_data_fraction)
+
+    for ibatch in range(num_batches):
+        batch_ids = test_sparse_data_fraction[ibatch]['id']
+        batch_indexes = test_sparse_data_fraction[ibatch]['indexes']
+        actual_batch_size = len(batch_ids)
+        batch_shape = np.array([actual_batch_size, feature_length], dtype=np.int64)
+        batch_values = np.ones(len(batch_indexes), dtype=np.float32)
+        # create a feed dictionary for this15162 batch
+        feed_dict = {model.X: (batch_indexes, batch_values, batch_shape),
+                     model.keep_prob:1.0}
+        # shape of [None,2]
+        y_out_prob = sess.run([model.y_out_prob], feed_dict=feed_dict)
+        batch_clicks = y_out_prob[0][:,-1]
+        all_ids.extend(batch_ids)
+        all_clicks.extend(batch_clicks)
+        ibatch += 1
+        if ibatch % print_every == 0:
+            print("Iteration %d has finished" % ibatch)
+
+
+if __name__ == "__main__":
+    fields = ['hour', 'C1', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21',
+              'banner_pos', 'site_id' ,'site_domain', 'site_category', 'app_domain',
+              'app_id', 'app_category', 'device_model', 'device_type', 'device_id',
+              'device_conn_type','click']
+
+    fields_dict = {}
+    for field in fields:
+        with open(os.path.join(DATA_DIR, "dicts", "%s.pkl"%field), "rb") as f:
+            fields_dict[field] = pickle.load(f)
+
+    train_array_len = max(fields_dict["click"].values()) + 1
+    test_array_len = train_array_len - 2
+    config = {
+        "lr": 0.01,
+        "batch_size": 512,
+        "reg_l1": 2e-2,
+        "reg_l2": 0,
+        "k": 40
+    }
+    feature_length = test_array_len
+    model = FM(config)
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        print("start training...")
+        train_model(sess, model, epochs=20, print_every=500)
+        then_test_model(sess, model)
