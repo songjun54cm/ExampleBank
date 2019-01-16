@@ -35,6 +35,7 @@ field_set = {
 click = dict()
 
 count = 0
+train_count = 0
 for data in train:
     for field_name in field_set.keys():
         field_list = data[field_name].values
@@ -50,13 +51,16 @@ for data in train:
             click[k] += v
         else:
             click[k] = v
-
+    id_list = data['id'].values
+    sample_count = len(id_list)
+    train_count += sample_count
     count += 1
     if count % 100 == 0:
         print('{} has finished'.format(count))
 
 
 count = 0
+test_count = 0
 for data in test:
     for field_name in field_set.keys():
         field_list = data[field_name].values
@@ -66,6 +70,9 @@ for data in test:
             else:
                 field_set[field_name][k] = v
 
+    id_list = data['id'].values
+    sample_count = len(id_list)
+    test_count += sample_count
     count += 1
     if count % 100 == 0:
         print('{} has finished'.format(count))
@@ -82,3 +89,5 @@ with open(os.path.join(DATA_DIR, "field2count/click.pkl"), "wb") as f:
     print("field: %s, size: %d" % ("click", len(field_dict)))
     pickle.dump(field_dict, f)
 
+print("train sample number: %d." % train_count)
+print("test sample number: %d." % test_count)

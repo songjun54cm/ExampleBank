@@ -45,7 +45,7 @@ def train_sparse_data_generate(train_data, field_dict):
             indexes.extend(index)
         sparse_data.append({"indexes":indexes, "labels":labels})
         ibatch += 1
-        if ibatch % 200 == 0:
+        if ibatch % 1000 == 0:
             print("%d batch has finished." % ibatch)
     with open(os.path.join(DATA_DIR, "train_sparse_data_frac_0.01.pkl"), "wb") as f:
         pickle.dump(sparse_data, f)
