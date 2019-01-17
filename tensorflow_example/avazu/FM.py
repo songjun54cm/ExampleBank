@@ -6,6 +6,9 @@ import pickle
 import os
 import numpy as np
 from settings import DATA_DIR
+import pandas as pd
+from data_process.utilities import train_batch_sparse_data_generate, ttest_sparse_data_generate
+import json
 
 
 class FM(object):
@@ -29,7 +32,7 @@ class FM(object):
             w1 = tf.get_variable('w1', shape=[self.p, 2],
                                  initializer=tf.truncated_normal_initializer(mean=0,stddev=1e-2))
             # shape of [None, 2]
-            self.linear_terms = tf.add(tf.sparse_tensor_dense_matmul  (self.X, w1), b)
+            self.linear_terms = tf.add(tf.sparse_tensor_dense_matmul(self.X, w1), b)
 
         with tf.variable_scope('interaction_layer'):
             v = tf.get_variable('v', shape=[self.p, self.k],
@@ -39,7 +42,7 @@ class FM(object):
                                                  tf.reduce_mean(
                                                      tf.subtract(
                                                          tf.pow(tf.sparse_tensor_dense_matmul(self.X, v), 2),
-                                                         tf.sparse_tensor_dense_matmul(tf.pow(self.X, 2), tf.pow(v, 2))),
+                                                         tf.sparse_tensor_dense_matmul(self.X, tf.pow(v, 2))),
                                                      1, keep_dims=True))
         # shape of [None, 2]
         self.y_out = tf.add(self.linear_terms, self.interaction_terms)
@@ -51,7 +54,7 @@ class FM(object):
         tf.summary.scalar('loss', self.loss)
 
         # accuracy
-        self.correct_prediction = tf.equal(tf.cast(tf.argmax(model.y_out,1), tf.int64), model.y)
+        self.correct_prediction = tf.equal(tf.cast(tf.argmax(self.y_out,1), tf.int64), self.y)
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
         # add summary to accuracy
         tf.summary.scalar('accuracy', self.accuracy)
@@ -66,26 +69,23 @@ class FM(object):
             self.train_op = optimizer.minimize(self.loss, global_step=self.global_step)
 
 
-def train_model(sess, model, epochs=10, print_every=50):
+def train_model(sess, model, fields_dict, epochs=10, print_every=50):
     # Merge all the summaries and write them out to train_logs
     merged = tf.summary.merge_all()
     train_writer = tf.summary.FileWriter('train_logs', sess.graph)
-    # get sparse training data
-    with open(os.path.join(DATA_DIR, "train_sparse_data_frac_0.01.pkl"), 'rb') as f:
-        sparse_data_fraction = pickle.load(f)
 
-    # get number of batches
-    num_batches = len(sparse_data_fraction)
     for e in range(epochs):
         num_samples = 0
         losses = []
-        for ibatch in range(num_batches):
-            batch_y = sparse_data_fraction[ibatch]['labels']
-            batch_y = np.array(batch_y)
-            actual_batch_size = len(batch_y)
-            batch_indexes = np.array(sparse_data_fraction[ibatch]['indexes'], dtype=np.int64)
+        # get training data
+        train_data = pd.read_csv('G://Datasets//avazuCTR//train.csv', chunksize=model.batch_size)
+        for data in train_data:
+            actual_batch_size = len(data)
+            indexes, labels = train_batch_sparse_data_generate(data, fields_dict)
+            batch_indexes = np.array(indexes, dtype=np.int64)
             batch_shape = np.array([actual_batch_size, feature_length], dtype=np.int64)
             batch_values = np.ones(len(batch_indexes), dtype=np.float32)
+            batch_y = labels
 
             feed_dict = {model.X: (batch_indexes, batch_values, batch_shape),
                          model.y: batch_y,
@@ -106,20 +106,17 @@ def train_model(sess, model, epochs=10, print_every=50):
         print("Epoch: %d, Overall loss: %.3f" % (e, total_loss))
 
 
-def then_test_model(sess, model, print_every=50):
+def then_test_model(sess, model, fields_dict, print_every=50):
     """testing model"""
     # get testing data, iterable
-    with open(os.path.join(DATA_DIR, "test_sparse_data_frac_0.01.pkl"), 'rb') as f:
-        test_sparse_data_fraction = pickle.load(f)
+    test_data = pd.read_csv('G://Datasets//avazuCTR//test.csv', chunksize=model.batch_size)
     all_ids = []
     all_clicks = []
-    # get number of batches
-    num_batches = len(test_sparse_data_fraction)
-
-    for ibatch in range(num_batches):
-        batch_ids = test_sparse_data_fraction[ibatch]['id']
-        batch_indexes = test_sparse_data_fraction[ibatch]['indexes']
-        actual_batch_size = len(batch_ids)
+    ibatch = 0
+    for data in test_data:
+        indexes, ids = ttest_sparse_data_generate(data, fields_dict)
+        actual_batch_size = len(data)
+        batch_indexes = np.array(indexes, dtype=np.int64)
         batch_shape = np.array([actual_batch_size, feature_length], dtype=np.int64)
         batch_values = np.ones(len(batch_indexes), dtype=np.float32)
         # create a feed dictionary for this15162 batch
@@ -128,7 +125,7 @@ def then_test_model(sess, model, print_every=50):
         # shape of [None,2]
         y_out_prob = sess.run([model.y_out_prob], feed_dict=feed_dict)
         batch_clicks = y_out_prob[0][:,-1]
-        all_ids.extend(batch_ids)
+        all_ids.extend(ids)
         all_clicks.extend(batch_clicks)
         ibatch += 1
         if ibatch % print_every == 0:
@@ -153,13 +150,15 @@ if __name__ == "__main__":
         "batch_size": 512,
         "reg_l1": 2e-2,
         "reg_l2": 0,
-        "k": 40
+        "k": 40,
+        "feature_length": test_array_len
     }
+    print(json.dumps(config))
     feature_length = test_array_len
     model = FM(config)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         print("start training...")
-        train_model(sess, model, epochs=20, print_every=500)
-        then_test_model(sess, model)
+        train_model(sess, model, fields_dict, epochs=20, print_every=500)
+        then_test_model(sess, model, fields_dict)
