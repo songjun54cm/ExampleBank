@@ -6,6 +6,43 @@ import os
 from settings import DATA_DIR
 
 
+def deepfm_onehot_representation(sample, fields_dict, array_length):
+    array = np.zeros([array_length])
+    idxs = []
+    for field in fields_dict:
+        if field == "click":
+            continue
+        if field == "hour":
+            field_value = int(str(sample[field])[-2:])
+        else:
+            field_value = sample[field]
+        ind = fields_dict[field][field_value]
+        array[ind] = 1.0
+        idxs.append(ind)
+    return array, idxs
+
+
+def deepfm_batch_data_generate(batch_data, fields_dict, array_length):
+    batch_x = []
+    batch_y = []
+    batch_idx = []
+    for i in range(len(batch_data)):
+        sample = batch_data.iloc[i,:]
+        click = sample.get("click", 0)
+        if click == 0:
+            label = 0
+        else:
+            label = 1
+        array, idx = deepfm_onehot_representation(sample, fields_dict, array_length)
+        batch_x.append(array)
+        batch_y.append(label)
+        batch_idx.append(idx)
+    batch_x = np.array(batch_x)
+    batch_y = np.array(batch_y)
+    batch_idx = np.array(batch_idx)
+    return batch_x, batch_y, batch_idx
+
+
 def ffm_onehot_representation(sample, fields_dict, array_length):
     array = np.zeros([array_length])
     for field in fields_dict:
@@ -17,7 +54,7 @@ def ffm_onehot_representation(sample, fields_dict, array_length):
             field_value = sample[field]
         ind = fields_dict[field][field_value]
         array[ind] = 1.0
-    return array, label
+    return array
 
 
 def ffm_batch_data_generate(batch_data, fields_dict, array_length):
