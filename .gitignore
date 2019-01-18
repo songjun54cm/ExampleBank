@@ -25,3 +25,4 @@ output/
 target/
 packages/
 settings.py
+tensorflow_example/models/
