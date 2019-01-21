@@ -8,6 +8,7 @@ fields_name = ["id", "click", "hour", "C1", "banner_pos", "site_id", "site_domai
                "device_type", "device_conn_type", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21"]
 def parser_data(*value):
     fea = dict(zip(fields_name, value))
+    fea["hour"] = tf.substr(fea["hour"], 6, 2)
     # fea["hour"] = tf.map_fn(lambda x: x[-2:], fea["hour"])
     return fea
 

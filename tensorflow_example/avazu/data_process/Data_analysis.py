@@ -4,8 +4,8 @@ from collections import Counter
 from settings import DATA_DIR
 import os
 
-train = pd.read_csv('G://Datasets//avazuCTR//train.csv',chunksize=20000)
-test = pd.read_csv('G://Datasets//avazuCTR//test.csv',chunksize=20000)
+train = pd.read_csv('G://Datasets//avazuCTR//train.csv',chunksize=20000, dtype=str)
+test = pd.read_csv('G://Datasets//avazuCTR//test.csv',chunksize=20000, dtype=str)
 
 field_set = {
     "C14": dict(),
@@ -39,6 +39,8 @@ train_count = 0
 for data in train:
     for field_name in field_set.keys():
         field_list = data[field_name].values
+        if field_name == "hour":
+            field_list = [v[-2:] for v in field_list]
         for k,v in Counter(field_list).items():
             if k in field_set[field_name].keys():
                 field_set[field_name][k] += v
@@ -64,6 +66,8 @@ test_count = 0
 for data in test:
     for field_name in field_set.keys():
         field_list = data[field_name].values
+        if field_name == "hour":
+            field_list = [v[-2:] for v in field_list]
         for k,v in Counter(field_list).items():
             if k in field_set[field_name].keys():
                 field_set[field_name][k] += v
