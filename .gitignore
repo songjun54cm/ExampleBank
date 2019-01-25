@@ -26,3 +26,4 @@ target/
 packages/
 settings.py
 tensorflow_example/models/
+tensorflow_example/avazu/train_logs/
