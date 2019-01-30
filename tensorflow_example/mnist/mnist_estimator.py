@@ -59,7 +59,7 @@ def my_model_fn(features, labels, mode, params):
 
     loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
-    if mode == tf.estimator.ModeKey.TRAIN:
+    if mode == tf.estimator.ModeKeys.TRAIN:
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
         train_op = optimizer.minimize(loss=loss)
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)

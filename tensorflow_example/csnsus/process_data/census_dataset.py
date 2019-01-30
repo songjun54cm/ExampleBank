@@ -105,7 +105,7 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
         columns = tf.decode_csv(value, record_defaults=_CSV_COLUMN_DEFAULTS)
         features = dict(zip(_CSV_COLUMNS, columns))
         labels = features.pop("income_bracket")
-        classes = tf.equal(labels, ">50K")
+        classes = tf.cast(tf.equal(labels, ">50K"), tf.int32)
         return features, classes
     dataset = tf.data.TextLineDataset(data_file)
 
