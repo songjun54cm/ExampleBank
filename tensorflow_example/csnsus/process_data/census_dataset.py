@@ -80,7 +80,6 @@ def build_model_columns():
             [age_buckets, 'education', 'occupation'],
             hash_bucket_size=_HASH_BUCKET_SIZE),
     ]
-
     # wide_columns = base_columns + crossed_columns
 
     deep_columns = [
@@ -93,8 +92,9 @@ def build_model_columns():
         tf.feature_column.indicator_column(education),
         tf.feature_column.indicator_column(marital_status),
         tf.feature_column.indicator_column(relationship),
+        tf.feature_column.indicator_column(occupation)
         # To show an example of embedding
-        tf.feature_column.embedding_column(occupation, dimension=8),
+        # tf.feature_column.embedding_column(occupation, dimension=8),
     ]
 
     return base_columns, crossed_columns, deep_columns
@@ -126,9 +126,21 @@ def train_input_fn():
     return input_fn(train_file_path, num_epochs=FLAGS.epochs_between_evals, shuffle=True, batch_size=100)
 
 
+def train_input_iter():
+    train_dataset = train_input_fn()
+    train_iter = train_dataset.make_initializable_iterator()
+    return train_iter
+
+
 def eval_input_fn():
     eval_file_path = os.path.join(_DATA_DIR, "adult.test")
     return input_fn(eval_file_path, num_epochs=1, shuffle=False, batch_size=100)
+
+
+def eval_input_iter():
+    eval_dataset = eval_input_fn()
+    eval_iter = eval_dataset.make_initializable_iterator()
+    return eval_iter
 
 
 def main(config):

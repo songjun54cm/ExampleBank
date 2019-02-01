@@ -30,13 +30,20 @@ def main(config):
     capital_gain = tf.feature_column.numeric_column('capital_gain')
     capital_loss = tf.feature_column.numeric_column('capital_loss')
     hours_per_week = tf.feature_column.numeric_column('hours_per_week')
-    education = tf.feature_column.indicator_column(tf.feature_column.categorical_column_with_vocabulary_list(
+    education = tf.feature_column.categorical_column_with_vocabulary_list(
         'education', [
             'Bachelors', 'HS-grad', '11th', 'Masters', '9th', 'Some-college',
             'Assoc-acdm', 'Assoc-voc', '7th-8th', 'Doctorate', 'Prof-school',
-            '5th-6th', '10th', '1st-4th', 'Preschool', '12th']))
+            '5th-6th', '10th', '1st-4th', 'Preschool', '12th'])
+    education_ind = tf.feature_column.indicator_column(education)
+    edu_emb = tf.feature_column.embedding_column(education, dimension=8)
 
-    base_columns = [age, education_num, capital_gain, capital_loss, hours_per_week, education]
+    occupation = tf.feature_column.categorical_column_with_hash_bucket(
+        'occupation', hash_bucket_size=_HASH_BUCKET_SIZE)
+    occupation_emb = tf.feature_column.embedding_column(occupation, dimension=6)
+
+
+    base_columns = [age, education_num, capital_gain, capital_loss, hours_per_week, education_ind, edu_emb, occupation_emb]
     # order: age, capital_gain, capital_loss, education, education_num, hours_per_week
 
     train_data_path = os.path.join(_DATA_DIR, "adult.data")
@@ -55,8 +62,12 @@ def main(config):
                            tf.local_variables_initializer(),
                            tf.tables_initializer())
         sess.run(init_op)
-        fea_val, label = sess.run([input_fea, label])
-        print(fea_val.shape)
+        try:
+            while True:
+                fea_val, label_v = sess.run([input_fea, label])
+                print(fea_val.shape)
+        except tf.errors.OutOfRangeError:
+            print("out of range")
 
 
 

@@ -1,151 +1,148 @@
 __author__ = 'JunSong<songjun@corp.netease.com>'
-# Date: 2019/1/28
+# Date: 2019/1/31
 import argparse
 import tensorflow as tf
-from process_data.census_dataset import train_input_fn, eval_input_fn, build_model_columns
+from TFBaseModel import TFBaseModel
 from absl import app
 from absl import flags
-import numpy as np
+from process_data.census_dataset import train_input_iter, eval_input_iter, build_model_columns
+
 
 FLAGS = flags.FLAGS
 
 
 def define_flags():
+    flags.DEFINE_integer(name="iters_between_evals",
+                         default=10,
+                         help="number of iters between evals.",
+                         lower_bound=1,
+                         upper_bound=10000)
     flags.DEFINE_integer(name="epochs_between_evals",
                          default=1,
                          help="number of epochs between evals.",
-                         lower_bound=0,
+                         lower_bound=1,
                          upper_bound=100)
     flags.DEFINE_string(name="export_dir",
                         default="dnn_model",
                         help="model export dir.")
 
 
-def dnn_model_fn(features, labels, mode, params):
-    """
+class DNNModel(TFBaseModel):
+    def __init__(self, config):
+        """
 
-    :param features:
-    :param labels:
-    :param mode:
-    :param params: {
-        "feature_columns": [],
-        "num_label": x
-    }
-    :return:
-    """
-    input_fea = tf.feature_column.input_layer(features, params["feature_columns"])
-    full1 = tf.layers.dense(inputs=input_fea, units=20, activation=tf.nn.relu, name="full1")
-    full2 = tf.layers.dense(inputs=full1, units=10, activation=tf.nn.relu, name="full2")
-    full3 = tf.layers.dense(inputs=full2, units=10, activation=tf.nn.relu, name="full3")
-    out_layer = tf.layers.dense(inputs=full3, units=params["num_label"], activation=tf.nn.sigmoid, name="out")
+        :param config:{
+            "feature_dim": x,
+            "num_label": x
+        }
+        """
+        super(DNNModel, self).__init__()
+        self.create_model(config)
 
-    probabilities = tf.nn.softmax(out_layer, name="probs")
-    pred_label = tf.argmax(input=probabilities, axis=1, name="pred_label")
-    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=probabilities)
-    acc = tf.metrics.accuracy(labels=labels, predictions=pred_label, name="accuracy")
+    def create_model(self, config):
+        input_feature = tf.placeholder(tf.float32, [None, config["feature_dim"]], name="input_feature")
+        input_label = tf.placeholder(tf.int32, [None], name="input_label")
+        self.setup_input(feature=input_feature, label=input_label)
 
-    if mode == tf.estimator.ModeKeys.TRAIN:
+        full1 = tf.layers.dense(inputs=input_feature, units=20, activation=tf.nn.relu, name="full1")
+        full2 = tf.layers.dense(inputs=full1, units=10, activation=tf.nn.relu, name="full2")
+        full3 = tf.layers.dense(inputs=full2, units=10, activation=tf.nn.relu, name="full3")
+        out_layer = tf.layers.dense(inputs=full3, units=config["num_label"], activation=tf.nn.sigmoid, name="out")
+
+        probabilities = tf.nn.softmax(out_layer, name="probs")
+        pred_label = tf.argmax(input=probabilities, axis=1, name="pred_label")
+        loss = tf.losses.sparse_softmax_cross_entropy(labels=input_label, logits=probabilities)
+        acc, acc_op = tf.metrics.accuracy(labels=input_label, predictions=pred_label, name="accuracy")
+        # for train
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
         train_op = optimizer.minimize(loss=loss)
-        return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
-
-    elif mode == tf.estimator.ModeKeys.EVAL:
         eval_metric_ops = {
-            "accuracy": acc,
+            "accuracy": acc_op
         }
-        return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
-    elif mode == tf.estimator.ModeKeys.PREDICT:
-        return tf.estimator.EstimatorSpec(mode, predictions=pred_label)
-
-    else:
-        raise KeyError("Unrecognized mode.")
+        self.setup_train(loss=loss, train_op=train_op)
+        self.setup_eval(loss=loss, eval_metric_ops=eval_metric_ops)
+        self.setup_predict(prediction=pred_label)
 
 
-def build_model(warm_start_from=None):
-    base_columns, crossed_columns, deep_columns = build_model_columns()
-    run_config = None
-    # run_config = tf.estimator.RunConfig().replace(
-    #     session_config=tf.ConfigProto(device_count={"CPU":0},
-    #                                   inter_op_parallelism_threads=2,
-    #                                   intra_op_parallelism_threads=2))
-
-    model_dir = "DNNModel"
-    model_params = {
-        "feature_columns": deep_columns,
-        "num_label": 2
-    }
-    model = tf.estimator.Estimator(model_fn=dnn_model_fn,
-                                   model_dir=model_dir,
-                                   config=run_config,
-                                   params=model_params,
-                                   warm_start_from=warm_start_from)
-    return model
+def eval_model(model, input_fea, input_label, eval_iter, sess):
+    total_result = {}
+    total_sample = 0
+    sess.run(eval_iter.initializer)
+    try:
+        while True:
+            fea_v, label_v = sess.run([input_fea, input_label])
+            result = model.eval(fea_v, label_v, sess)
+            num_sample = fea_v.shape[0]
+            total_sample += num_sample
+            for key in sorted(result):
+                total_result[key] = total_result.get(key, 0) + (result[key] * num_sample)
+    except tf.errors.OutOfRangeError:
+        for key in sorted(total_result):
+            total_result[key] = total_result[key] / total_sample
+    return total_result
 
 
-def train_model(model):
-    train_epochs = 2
-    log_tensors = {
-        "accuracy": "accuracy"
-    }
-    train_hooks = [tf.train.LoggingTensorHook(tensors=log_tensors, every_n_iter=100)]
-    for n in range(train_epochs // FLAGS.epochs_between_evals):
-        model.train(input_fn=train_input_fn, hooks=None)
-        results = model.evaluate(input_fn=eval_input_fn)
-        print("Result at epoch %d / %d" % (((n+1)*FLAGS.epochs_between_evals), train_epochs))
-        print("-" * 60)
-        for key in sorted(results):
-            print("%s : %s" % (key, results[key]))
+def train_model(model, input_fea, input_label, train_iter, eval_in_fea, eval_in_label, eval_iter, sess):
+    train_epochs = 20
+    for n in range(train_epochs):
+        sess.run(train_iter.initializer)
+        iter_n = 0
+        try:
+            print("train epoch %d" % n)
+            while True:
+                iter_n += 1
+                fea_v, label_v = sess.run([input_fea, input_label])
+                # print("fea_v shape: %s" % str(fea_v.shape))
+                model.train(fea_v, label_v, sess)
+                if iter_n % FLAGS.iters_between_evals == 0:
+                    print("eval epoch %d" % n)
+                    result = eval_model(model, eval_in_fea, eval_in_label, eval_iter, sess)
+                    print("Result at iter %d" % iter_n)
+                    for key in sorted(result):
+                        print("%s : %s" % (key, result[key]))
+        except tf.errors.OutOfRangeError:
+            print("out of range. eval epoch %d"% n)
+            result = eval_model(model, eval_in_fea, eval_in_label, eval_iter, sess)
+            print("Result at iter %d, epoch %d" % (iter_n, n))
+            for key in sorted(result):
+                print("%s : %s" % (key, result[key]))
+                print("=="*20)
+    return sess
 
-
-def eval_model(model):
-    results = model.evaluate(input_fn=eval_input_fn)
-    for key in sorted(results):
-        print("%s : %s" % (key, results[key]))
-
-
-def then_test_model(model):
-    predict_labels = model.predict(input_fn=eval_input_fn)
-    print("predict label shape: %s" % np.ndarray(list(predict_labels)).shape)
+def then_test_model(model, test_dataset, sess):
+    pass
 
 
 def save_model(model, flag_obj):
-    base_columns, crossed_columns, deep_columns = build_model_columns()
-    feature_spec = tf.feature_column.make_parse_example_spec(deep_columns)
-    example_input_fn = (
-        tf.estimator.export.build_parsing_serving_input_receiver_fn(feature_spec)
-    )
-    model.export_savemodel(export_dir_base=flag_obj.export_dir,
-                           serving_input_receiver_fn=example_input_fn,
-                           strip_default_attrs=True)
+    pass
 
 
 def load_model(flag_obj):
-    model = build_model(flag_obj.export_dir)
-    return model
+    pass
 
 
 def main(argv):
-    print("build model...")
-    model = build_model()
-    print("train model...")
-    train_model(model)
-    print("op names")
-    print(tf.get_default_graph().as_graph_def())
-    for op in tf.get_default_graph().get_operations():
-        print(str(op.name))
-    print("variable names")
-    print(model.get_variable_names())
-    print("eval model...")
-    eval_model(model)
-    print("test model...")
-    then_test_model(model)
-    print("save model...")
-    save_model(model, FLAGS)
-    print("load model...")
-    model = load_model(FLAGS)
-    print("eval model...")
-    eval_model(model)
+    config = {
+        "feature_dim": 1043,
+        "num_label": 2
+    }
+    model = DNNModel(config)
+    _, _, deep_columns = build_model_columns()
+
+    train_iter = train_input_iter()
+    tr_fea, train_in_label = train_iter.get_next()
+    train_in_fea = tf.feature_column.input_layer(tr_fea, deep_columns)
+    eval_iter = eval_input_iter()
+    eval_fea, eval_in_label = eval_iter.get_next()
+    eval_in_fea = tf.feature_column.input_layer(eval_fea, deep_columns)
+    with tf.Session() as sess:
+        init_op = tf.group(tf.tables_initializer(),
+                           tf.global_variables_initializer(),
+                           tf.local_variables_initializer())
+        sess.run(init_op)
+        train_model(model, train_in_fea, train_in_label, train_iter, eval_in_fea, eval_in_label, eval_iter, sess)
+        eval_model(model, eval_in_fea, eval_in_label, eval_iter, sess)
 
 
 if __name__ == "__main__":
