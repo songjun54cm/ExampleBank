@@ -27,6 +27,7 @@ packages/
 settings.py
 tensorflow_example/models/
 tensorflow_example/avazu/train_logs/
+PythonExample/.DS_Store
 *.exe
 */*/cmake-build-debug/
 !CMakeLists.txt
