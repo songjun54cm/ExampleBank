@@ -35,6 +35,14 @@ Jun& get_ref_jun(const std::string& name) {
     return the_jun;
 }
 
+void test_ref_1(Jun& the_jun) {
+  the_jun.setName("jun111");
+}
+
+//void test_ref_2(const Jun& the_jun) {
+//  the_jun.setName("jun222");
+//}
+
 int main() {
     std::cout << "Hello, World!" << std::endl;
     std::string name = "song";

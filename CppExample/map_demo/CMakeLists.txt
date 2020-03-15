@@ -3,4 +3,4 @@ project(map_demo)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(map_demo main.cpp ../null_demo/main.cpp)
+add_executable(map_demo main.cpp)
