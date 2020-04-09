@@ -2,7 +2,7 @@
 #include <time.h>
 #include <string>
 
-int main() {
+int test1() {
   std::cout << "Hello, World!" << std::endl;
 
   time_t m_time = time(NULL);
@@ -28,4 +28,24 @@ int main() {
   std::cout << "hourmin: " << hourmin << std::endl;
 
   return 0;
+}
+
+void GetCurrentHHmmTime(char* char_hour_min ) {
+  time_t current_time = time(NULL);
+  struct tm now_time;
+  localtime_r(&current_time, &now_time);
+  strftime(char_hour_min, 100, "%H%M", &now_time);
+}
+
+int test2() {
+  char char_hour_min[4];
+  GetCurrentHHmmTime(char_hour_min);
+  std::string current_hour_minute(char_hour_min);
+  std::cout << "current HHmm: " << current_hour_minute;
+
+  return 0;
+}
+
+int main() {
+  return test2();
 }
