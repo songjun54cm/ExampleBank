@@ -29,7 +29,8 @@ void test() {
 void test1() {
   std::vector<std::string> str_vec {"aaa",
                                     "bbb",
-                                    "ccc"};
+                                    "ccc",
+                                    "ddd",};
   std::cout << "vec size: " << str_vec.size() << std::endl;
   for (std::string str : str_vec) {
     std::cout << str << std::endl;
