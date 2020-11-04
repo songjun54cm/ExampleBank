@@ -1,0 +1,54 @@
+//
+// Created by Jun Song on 2020/10/27.
+// Authors: SongJun<songjun@kuaishou.com>
+//
+syntax = "proto3";
+
+package kuaishou.ad;
+
+message MerchantROASBidContext {
+    uint64 unit_id = 1;
+    double gmv = 2; // 总付费金额，单位厘
+    uint64 last_update_context_timestamp = 3; // 上一次修改的时间
+    uint64 last_sync_context_timestamp = 4; // 上一次上传同步的时间
+    uint64 batch_update_count = 5; // 当前 batch 的累计 update 数
+    uint64 total_update_count = 6; // 当天总 update 数
+    uint64 last_sync_result_timestamp = 7; // 最近一次同步
+}
+
+message RedisConfig {
+    string redis_pipeline_cluster_name = 1;
+    uint64 redis_session_timeout_millis = 2;
+    uint64 redis_read_timeout_millis = 3;
+    uint64 redis_write_timeout_millis = 4;
+    uint64 redis_batch_read_timeout_millis = 5;
+    uint64 redis_batch_write_timeout_millis = 6;
+}
+
+message KafkaConfig {
+    string kafka_topic = 1;
+    string user_params = 2;
+}
+
+message BatchSenderConfig {
+    uint32 queue_size = 1;
+    uint32 thread_num = 2;
+    RedisConfig redis_config = 3; // redis 集群配置
+    KafkaConfig kafka_config = 4; // kafka 集群配置
+}
+
+message MerchantROASBidConfig {
+    bool enable_merchant_roas_bid = 1; // 策略开关
+    uint64 context_sync_time_interval_ms = 2; // context 同步的时间间隔
+    uint64 result_sync_time_interval_ms = 3; // 调整结果同步的时间间隔
+    double budget_consume_rate_low_threshold = 4; // 开始调整的预算消耗比例门槛
+    uint64 day_charge_amount_low_threshold = 5; // 开始调整的消耗金额门槛
+    double target_roas_fluctuating_rate = 6; // 目标 roas 的浮动比例，在浮动范围内不调整
+    BatchSenderConfig redis_batch_sender_config = 7;
+    BatchSenderConfig kafka_batch_sender_config = 8;
+}
+
+message MerchantROASBidAdjustResult {
+    uint64 unit_id = 1;
+    double adjust_rage = 2; // 调整系数
+}
