@@ -52,3 +52,24 @@ message MerchantROASBidAdjustResult {
     uint64 unit_id = 1;
     double adjust_rage = 2; // 调整系数
 }
+
+message MerchantAuthorCpmThrConf {
+    uint64 author_id = 1;
+    uint32 cpm_thr_pos = 2;
+}
+message TopAuthorPunishConfig {
+    repeated MerchantAuthorCpmThrConf cpm_thr_conf = 1;
+    map<uint64, MerchantAuthorCpmThrConf> cpm_thr_conf_map = 2; // 定义Map对象
+}
+
+
+message FlowControlMap {
+  map<uint64, FlowControl> user_info = 1;
+}
+
+message FlowControl {
+  uint64 user_id = 1;  // 用户 ID
+  uint32 limit_ratio = 2;  // 限流比例
+  uint64 valid_start_time = 3;  // 生效开始时间毫秒
+  uint64 valid_end_time = 4;  // 生效结束时间毫秒
+}
