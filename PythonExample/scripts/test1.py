@@ -19,7 +19,7 @@ def form_robort_content(content_map, tab_size):
     if isinstance(content_map, dict):
         for k, v in content_map.items():
             content.append("%s%s" % (" " * tab_size, k))
-            content.extend(v, tab_size + 2)
+            content.extend(form_robort_content(v, tab_size + 4))
     else:
         content.append("%s%s" % (" " * tab_size, content_map))
     return content
@@ -42,9 +42,10 @@ class RobortContent():
 
     def to_robort_string(self):
         content = []
-        content.append(r'<font face="黑体">%s</font>' % self.title)
+        content.append("<< %s >>" % self.title)
+        # content.append("<font face=\\\"黑体\\\" size=5>%s</font>" % self.title)
         content.extend(form_robort_content(self.content_map, 0))
-        return "\n".join(content)
+        return "\\n".join(content)
 
 
 def form_campaign_chengben(in_file, title):
@@ -80,11 +81,14 @@ def main(argv):
     campaign_chengben_file = "campaign_chengben_file.txt"
     action_chengben_file = "action_chengben_file.txt"
     content_list = []
-    content_list.append(form_campaign_chengben(campaign_chengben_file, "计划维度>5A的单元成本情况"))
-    content_list.append(form_action_chengben(action_chengben_file, "action维度>5A的单元成本情况"))
+    content_list.append(form_campaign_chengben(campaign_chengben_file, "计划维度大于5A的单元成本情况"))
+    content_list.append(form_action_chengben(action_chengben_file, "action维度大于5A的单元成本情况"))
 
+    str_list = []
     for c in content_list:
-        print(c)
+        str_list.append(c.to_robort_string())
+
+    print("\\n====================\\n".join(str_list))
 
 
 
