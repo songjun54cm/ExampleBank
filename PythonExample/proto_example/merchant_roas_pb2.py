@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='kuaishou.ad',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x13merchant_roas.proto\x12\x0bkuaishou.ad\"\xde\x01\n\x16MerchantROASBidContext\x12\x0f\n\x07unit_id\x18\x01 \x01(\x04\x12\x0b\n\x03gmv\x18\x02 \x01(\x01\x12%\n\x1dlast_update_context_timestamp\x18\x03 \x01(\x04\x12#\n\x1blast_sync_context_timestamp\x18\x04 \x01(\x04\x12\x1a\n\x12\x62\x61tch_update_count\x18\x05 \x01(\x04\x12\x1a\n\x12total_update_count\x18\x06 \x01(\x04\x12\"\n\x1alast_sync_result_timestamp\x18\x07 \x01(\x04\"\xf2\x01\n\x0bRedisConfig\x12#\n\x1bredis_pipeline_cluster_name\x18\x01 \x01(\t\x12$\n\x1credis_session_timeout_millis\x18\x02 \x01(\x04\x12!\n\x19redis_read_timeout_millis\x18\x03 \x01(\x04\x12\"\n\x1aredis_write_timeout_millis\x18\x04 \x01(\x04\x12\'\n\x1fredis_batch_read_timeout_millis\x18\x05 \x01(\x04\x12(\n redis_batch_write_timeout_millis\x18\x06 \x01(\x04\"7\n\x0bKafkaConfig\x12\x13\n\x0bkafka_topic\x18\x01 \x01(\t\x12\x13\n\x0buser_params\x18\x02 \x01(\t\"\x9b\x01\n\x11\x42\x61tchSenderConfig\x12\x12\n\nqueue_size\x18\x01 \x01(\r\x12\x12\n\nthread_num\x18\x02 \x01(\r\x12.\n\x0credis_config\x18\x03 \x01(\x0b\x32\x18.kuaishou.ad.RedisConfig\x12.\n\x0ckafka_config\x18\x04 \x01(\x0b\x32\x18.kuaishou.ad.KafkaConfig\"\x86\x03\n\x15MerchantROASBidConfig\x12 \n\x18\x65nable_merchant_roas_bid\x18\x01 \x01(\x08\x12%\n\x1d\x63ontext_sync_time_interval_ms\x18\x02 \x01(\x04\x12$\n\x1cresult_sync_time_interval_ms\x18\x03 \x01(\x04\x12)\n!budget_consume_rate_low_threshold\x18\x04 \x01(\x01\x12\'\n\x1f\x64\x61y_charge_amount_low_threshold\x18\x05 \x01(\x04\x12$\n\x1ctarget_roas_fluctuating_rate\x18\x06 \x01(\x01\x12\x41\n\x19redis_batch_sender_config\x18\x07 \x01(\x0b\x32\x1e.kuaishou.ad.BatchSenderConfig\x12\x41\n\x19kafka_batch_sender_config\x18\x08 \x01(\x0b\x32\x1e.kuaishou.ad.BatchSenderConfig\"C\n\x1bMerchantROASBidAdjustResult\x12\x0f\n\x07unit_id\x18\x01 \x01(\x04\x12\x13\n\x0b\x61\x64just_rage\x18\x02 \x01(\x01\"B\n\x18MerchantAuthorCpmThrConf\x12\x11\n\tauthor_id\x18\x01 \x01(\x04\x12\x13\n\x0b\x63pm_thr_pos\x18\x02 \x01(\r\"\x82\x02\n\x15TopAuthorPunishConfig\x12;\n\x0c\x63pm_thr_conf\x18\x01 \x03(\x0b\x32%.kuaishou.ad.MerchantAuthorCpmThrConf\x12O\n\x10\x63pm_thr_conf_map\x18\x02 \x03(\x0b\x32\x35.kuaishou.ad.TopAuthorPunishConfig.CpmThrConfMapEntry\x1a[\n\x12\x43pmThrConfMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\x04\x12\x34\n\x05value\x18\x02 \x01(\x0b\x32%.kuaishou.ad.MerchantAuthorCpmThrConf:\x02\x38\x01\"\x99\x01\n\x0e\x46lowControlMap\x12<\n\tuser_info\x18\x01 \x03(\x0b\x32).kuaishou.ad.FlowControlMap.UserInfoEntry\x1aI\n\rUserInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\x04\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.kuaishou.ad.FlowControl:\x02\x38\x01\"e\n\x0b\x46lowControl\x12\x0f\n\x07user_id\x18\x01 \x01(\x04\x12\x13\n\x0blimit_ratio\x18\x02 \x01(\r\x12\x18\n\x10valid_start_time\x18\x03 \x01(\x04\x12\x16\n\x0evalid_end_time\x18\x04 \x01(\x04\x62\x06proto3'
+  serialized_pb=b'\n\x13merchant_roas.proto\x12\x0bkuaishou.ad\"\xde\x01\n\x16MerchantROASBidContext\x12\x0f\n\x07unit_id\x18\x01 \x01(\x04\x12\x0b\n\x03gmv\x18\x02 \x01(\x01\x12%\n\x1dlast_update_context_timestamp\x18\x03 \x01(\x04\x12#\n\x1blast_sync_context_timestamp\x18\x04 \x01(\x04\x12\x1a\n\x12\x62\x61tch_update_count\x18\x05 \x01(\x04\x12\x1a\n\x12total_update_count\x18\x06 \x01(\x04\x12\"\n\x1alast_sync_result_timestamp\x18\x07 \x01(\x04\"\xf2\x01\n\x0bRedisConfig\x12#\n\x1bredis_pipeline_cluster_name\x18\x01 \x01(\t\x12$\n\x1credis_session_timeout_millis\x18\x02 \x01(\x04\x12!\n\x19redis_read_timeout_millis\x18\x03 \x01(\x04\x12\"\n\x1aredis_write_timeout_millis\x18\x04 \x01(\x04\x12\'\n\x1fredis_batch_read_timeout_millis\x18\x05 \x01(\x04\x12(\n redis_batch_write_timeout_millis\x18\x06 \x01(\x04\"7\n\x0bKafkaConfig\x12\x13\n\x0bkafka_topic\x18\x01 \x01(\t\x12\x13\n\x0buser_params\x18\x02 \x01(\t\"\x9b\x01\n\x11\x42\x61tchSenderConfig\x12\x12\n\nqueue_size\x18\x01 \x01(\r\x12\x12\n\nthread_num\x18\x02 \x01(\r\x12.\n\x0credis_config\x18\x03 \x01(\x0b\x32\x18.kuaishou.ad.RedisConfig\x12.\n\x0ckafka_config\x18\x04 \x01(\x0b\x32\x18.kuaishou.ad.KafkaConfig\"\x86\x03\n\x15MerchantROASBidConfig\x12 \n\x18\x65nable_merchant_roas_bid\x18\x01 \x01(\x08\x12%\n\x1d\x63ontext_sync_time_interval_ms\x18\x02 \x01(\x04\x12$\n\x1cresult_sync_time_interval_ms\x18\x03 \x01(\x04\x12)\n!budget_consume_rate_low_threshold\x18\x04 \x01(\x01\x12\'\n\x1f\x64\x61y_charge_amount_low_threshold\x18\x05 \x01(\x04\x12$\n\x1ctarget_roas_fluctuating_rate\x18\x06 \x01(\x01\x12\x41\n\x19redis_batch_sender_config\x18\x07 \x01(\x0b\x32\x1e.kuaishou.ad.BatchSenderConfig\x12\x41\n\x19kafka_batch_sender_config\x18\x08 \x01(\x0b\x32\x1e.kuaishou.ad.BatchSenderConfig\"C\n\x1bMerchantROASBidAdjustResult\x12\x0f\n\x07unit_id\x18\x01 \x01(\x04\x12\x13\n\x0b\x61\x64just_rage\x18\x02 \x01(\x01\"B\n\x18MerchantAuthorCpmThrConf\x12\x11\n\tauthor_id\x18\x01 \x01(\x04\x12\x13\n\x0b\x63pm_thr_pos\x18\x02 \x01(\r\"\x82\x02\n\x15TopAuthorPunishConfig\x12;\n\x0c\x63pm_thr_conf\x18\x01 \x03(\x0b\x32%.kuaishou.ad.MerchantAuthorCpmThrConf\x12O\n\x10\x63pm_thr_conf_map\x18\x02 \x03(\x0b\x32\x35.kuaishou.ad.TopAuthorPunishConfig.CpmThrConfMapEntry\x1a[\n\x12\x43pmThrConfMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\x04\x12\x34\n\x05value\x18\x02 \x01(\x0b\x32%.kuaishou.ad.MerchantAuthorCpmThrConf:\x02\x38\x01\"\x99\x01\n\x0e\x46lowControlMap\x12<\n\tuser_info\x18\x01 \x03(\x0b\x32).kuaishou.ad.FlowControlMap.UserInfoEntry\x1aI\n\rUserInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\x04\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.kuaishou.ad.FlowControl:\x02\x38\x01\"e\n\x0b\x46lowControl\x12\x0f\n\x07user_id\x18\x01 \x01(\x04\x12\x13\n\x0blimit_ratio\x18\x02 \x01(\r\x12\x18\n\x10valid_start_time\x18\x03 \x01(\x04\x12\x16\n\x0evalid_end_time\x18\x04 \x01(\x04\"\xa6\x01\n\x10\x46lowControlMapV2\x12@\n\nconfig_map\x18\x02 \x03(\x0b\x32,.kuaishou.ad.FlowControlMapV2.ConfigMapEntry\x1aP\n\x0e\x43onfigMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\x04\x12-\n\x05value\x18\x02 \x01(\x0b\x32\x1e.kuaishou.ad.FlowControlInfoV2:\x02\x38\x01\"\xa5\x01\n\x11\x46lowControlInfoV2\x12\x11\n\tconfig_id\x18\x01 \x01(\x04\x12\x11\n\tauthor_id\x18\x02 \x03(\x04\x12\x12\n\naccount_id\x18\x03 \x03(\x04\x12\x0f\n\x07unit_id\x18\x04 \x03(\x04\x12\x13\n\x0blimit_ratio\x18\x05 \x01(\r\x12\x18\n\x10valid_start_time\x18\x06 \x01(\x04\x12\x16\n\x0evalid_end_time\x18\x07 \x01(\x04\x62\x06proto3'
 )
 
 
@@ -603,6 +603,147 @@ _FLOWCONTROL = _descriptor.Descriptor(
   serialized_end=1769,
 )
 
+
+_FLOWCONTROLMAPV2_CONFIGMAPENTRY = _descriptor.Descriptor(
+  name='ConfigMapEntry',
+  full_name='kuaishou.ad.FlowControlMapV2.ConfigMapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='kuaishou.ad.FlowControlMapV2.ConfigMapEntry.key', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='kuaishou.ad.FlowControlMapV2.ConfigMapEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1858,
+  serialized_end=1938,
+)
+
+_FLOWCONTROLMAPV2 = _descriptor.Descriptor(
+  name='FlowControlMapV2',
+  full_name='kuaishou.ad.FlowControlMapV2',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='config_map', full_name='kuaishou.ad.FlowControlMapV2.config_map', index=0,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_FLOWCONTROLMAPV2_CONFIGMAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1772,
+  serialized_end=1938,
+)
+
+
+_FLOWCONTROLINFOV2 = _descriptor.Descriptor(
+  name='FlowControlInfoV2',
+  full_name='kuaishou.ad.FlowControlInfoV2',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='config_id', full_name='kuaishou.ad.FlowControlInfoV2.config_id', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='author_id', full_name='kuaishou.ad.FlowControlInfoV2.author_id', index=1,
+      number=2, type=4, cpp_type=4, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='account_id', full_name='kuaishou.ad.FlowControlInfoV2.account_id', index=2,
+      number=3, type=4, cpp_type=4, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='unit_id', full_name='kuaishou.ad.FlowControlInfoV2.unit_id', index=3,
+      number=4, type=4, cpp_type=4, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='limit_ratio', full_name='kuaishou.ad.FlowControlInfoV2.limit_ratio', index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='valid_start_time', full_name='kuaishou.ad.FlowControlInfoV2.valid_start_time', index=5,
+      number=6, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='valid_end_time', full_name='kuaishou.ad.FlowControlInfoV2.valid_end_time', index=6,
+      number=7, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1941,
+  serialized_end=2106,
+)
+
 _BATCHSENDERCONFIG.fields_by_name['redis_config'].message_type = _REDISCONFIG
 _BATCHSENDERCONFIG.fields_by_name['kafka_config'].message_type = _KAFKACONFIG
 _MERCHANTROASBIDCONFIG.fields_by_name['redis_batch_sender_config'].message_type = _BATCHSENDERCONFIG
@@ -614,6 +755,9 @@ _TOPAUTHORPUNISHCONFIG.fields_by_name['cpm_thr_conf_map'].message_type = _TOPAUT
 _FLOWCONTROLMAP_USERINFOENTRY.fields_by_name['value'].message_type = _FLOWCONTROL
 _FLOWCONTROLMAP_USERINFOENTRY.containing_type = _FLOWCONTROLMAP
 _FLOWCONTROLMAP.fields_by_name['user_info'].message_type = _FLOWCONTROLMAP_USERINFOENTRY
+_FLOWCONTROLMAPV2_CONFIGMAPENTRY.fields_by_name['value'].message_type = _FLOWCONTROLINFOV2
+_FLOWCONTROLMAPV2_CONFIGMAPENTRY.containing_type = _FLOWCONTROLMAPV2
+_FLOWCONTROLMAPV2.fields_by_name['config_map'].message_type = _FLOWCONTROLMAPV2_CONFIGMAPENTRY
 DESCRIPTOR.message_types_by_name['MerchantROASBidContext'] = _MERCHANTROASBIDCONTEXT
 DESCRIPTOR.message_types_by_name['RedisConfig'] = _REDISCONFIG
 DESCRIPTOR.message_types_by_name['KafkaConfig'] = _KAFKACONFIG
@@ -624,6 +768,8 @@ DESCRIPTOR.message_types_by_name['MerchantAuthorCpmThrConf'] = _MERCHANTAUTHORCP
 DESCRIPTOR.message_types_by_name['TopAuthorPunishConfig'] = _TOPAUTHORPUNISHCONFIG
 DESCRIPTOR.message_types_by_name['FlowControlMap'] = _FLOWCONTROLMAP
 DESCRIPTOR.message_types_by_name['FlowControl'] = _FLOWCONTROL
+DESCRIPTOR.message_types_by_name['FlowControlMapV2'] = _FLOWCONTROLMAPV2
+DESCRIPTOR.message_types_by_name['FlowControlInfoV2'] = _FLOWCONTROLINFOV2
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 MerchantROASBidContext = _reflection.GeneratedProtocolMessageType('MerchantROASBidContext', (_message.Message,), {
@@ -712,7 +858,30 @@ FlowControl = _reflection.GeneratedProtocolMessageType('FlowControl', (_message.
   })
 _sym_db.RegisterMessage(FlowControl)
 
+FlowControlMapV2 = _reflection.GeneratedProtocolMessageType('FlowControlMapV2', (_message.Message,), {
+
+  'ConfigMapEntry' : _reflection.GeneratedProtocolMessageType('ConfigMapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _FLOWCONTROLMAPV2_CONFIGMAPENTRY,
+    '__module__' : 'merchant_roas_pb2'
+    # @@protoc_insertion_point(class_scope:kuaishou.ad.FlowControlMapV2.ConfigMapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _FLOWCONTROLMAPV2,
+  '__module__' : 'merchant_roas_pb2'
+  # @@protoc_insertion_point(class_scope:kuaishou.ad.FlowControlMapV2)
+  })
+_sym_db.RegisterMessage(FlowControlMapV2)
+_sym_db.RegisterMessage(FlowControlMapV2.ConfigMapEntry)
+
+FlowControlInfoV2 = _reflection.GeneratedProtocolMessageType('FlowControlInfoV2', (_message.Message,), {
+  'DESCRIPTOR' : _FLOWCONTROLINFOV2,
+  '__module__' : 'merchant_roas_pb2'
+  # @@protoc_insertion_point(class_scope:kuaishou.ad.FlowControlInfoV2)
+  })
+_sym_db.RegisterMessage(FlowControlInfoV2)
+
 
 _TOPAUTHORPUNISHCONFIG_CPMTHRCONFMAPENTRY._options = None
 _FLOWCONTROLMAP_USERINFOENTRY._options = None
+_FLOWCONTROLMAPV2_CONFIGMAPENTRY._options = None
 # @@protoc_insertion_point(module_scope)

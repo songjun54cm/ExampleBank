@@ -73,3 +73,17 @@ message FlowControl {
   uint64 valid_start_time = 3;  // 生效开始时间毫秒
   uint64 valid_end_time = 4;  // 生效结束时间毫秒
 }
+
+message FlowControlMapV2 {
+  map<uint64, FlowControlInfoV2> config_map = 2;
+}
+
+message FlowControlInfoV2 {
+  uint64 config_id = 1;
+  repeated uint64 author_id = 2;
+  repeated uint64 account_id = 3;
+  repeated uint64 unit_id = 4;
+  uint32 limit_ratio = 5;  // 限流比例
+  uint64 valid_start_time = 6;  // 生效开始时间毫秒
+  uint64 valid_end_time = 7;  // 生效结束时间毫秒
+}
